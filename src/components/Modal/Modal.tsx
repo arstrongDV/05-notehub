@@ -1,4 +1,3 @@
-import React from 'react'
 import css from './Modal.module.css'
 import { createPortal } from 'react-dom'
 import NoteForm, { type ToDoFormValues } from '../NoteForm/NoteForm'

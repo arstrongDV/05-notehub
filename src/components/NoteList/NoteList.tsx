@@ -1,7 +1,5 @@
-import React from 'react'
 import css from './NoteList.module.css'
 import type { NotesProps } from '../../types/note'
-import type { ToDoFormValues } from '../NoteForm/NoteForm';
 
 interface NoteListProps{
     notes: NotesProps[];
