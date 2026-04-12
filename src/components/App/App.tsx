@@ -1,19 +1,13 @@
-import { useState, type ComponentType } from 'react'
+import { useState } from 'react'
 import css from './App.module.css'
 import NoteList from '../NoteList/NoteList'
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { createNote, deleteNote, fetchNotes } from '../../services/noteService'
-import ReactPaginateModule from "react-paginate";
-import type { ReactPaginateProps } from "react-paginate";
 import Modal from '../Modal/Modal'
 import type { ToDoFormValues } from '../NoteForm/NoteForm'
 import SearchBox from '../SearchBox/SearchBox'
+import Pagination from '../Pagination/Pagination'
 
-type ModuleWithDefault<T> = { default: T };
-
-const ReactPaginate = (
-  ReactPaginateModule as unknown as ModuleWithDefault<ComponentType<ReactPaginateProps>>
-).default;
 
 function App() {
   const queryClient = useQueryClient();
@@ -55,17 +49,18 @@ function App() {
       <SearchBox searchQuery={searchQuery} onChange={(newQuery: string) => setSearchQuery(newQuery)} />
 
       {data && data?.totalPages > 1 && (
-        <ReactPaginate 
-          pageCount={data?.totalPages}
-          pageRangeDisplayed={5}
-          marginPagesDisplayed={1}
-          onPageChange={({ selected }) => setPage(selected + 1)}
-          forcePage={page - 1}
-          containerClassName={css.pagination}
-          activeClassName={css.active}
-          nextLabel="→"
-          previousLabel="←"
-        />
+        // <ReactPaginate 
+        //   pageCount={data?.totalPages}
+        //   pageRangeDisplayed={5}
+        //   marginPagesDisplayed={1}
+        //   onPageChange={({ selected }) => setPage(selected + 1)}
+        //   forcePage={page - 1}
+        //   containerClassName={css.pagination}
+        //   activeClassName={css.active}
+        //   nextLabel="→"
+        //   previousLabel="←"
+        // />
+        <Pagination data={data} page={page} setPage={setPage} />
       )}
       <button className={css.button} onClick={() => setShowModal(true)}>Create note +</button>
     </header>
