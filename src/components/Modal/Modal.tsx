@@ -1,11 +1,9 @@
 import css from './Modal.module.css'
 import { createPortal } from 'react-dom'
-import NoteForm, { type ToDoFormValues } from '../NoteForm/NoteForm'
 import { useEffect } from 'react';
 
 interface ModalProps {
   onClose: () => void;
-  // onPost: (valuse: ToDoFormValues) => void;
   children: React.ReactNode;
 }
 
@@ -22,7 +20,7 @@ const Modal = ({ onClose, children }: ModalProps) => {
 	      onClose();
 	    }
 	  };
-    
+
 	document.addEventListener("keydown", handleKeyDown);
 	document.body.style.overflow = "hidden";
 
