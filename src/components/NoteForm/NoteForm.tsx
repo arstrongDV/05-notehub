@@ -28,17 +28,16 @@ const NoteForm = ({ onClose }: NoteFormProps) => {
     mutationFn: (values: ToDoFormValues) => createNote(values),
     onSuccess: () => {
       queryClient.invalidateQueries({queryKey: ['notes']})
+      onClose();
     }
   })
 
-
     const FormSchema = Yup.object().shape({
         title: Yup.string()
-            .min(3, "Title must be at least 2 characters")
+            .min(3, "Title must be at least 3 characters")
             .max(50, "Title is too long")
             .required("Title is required"),
         content: Yup.string()
-            .min(3, "Content must be at least 2 characters")
             .max(500, "Content is too long"),
         tag: Yup.string().required("Tag is required").oneOf(['Todo', 'Work', 'Personal', 'Meeting', 'Shopping'], 'Invalid tag')
     });
@@ -50,7 +49,6 @@ const NoteForm = ({ onClose }: NoteFormProps) => {
     console.log("Order data:", values);
     postToDoMutation.mutate(values);
     actions.resetForm();
-    onClose();
   };
 
   return (

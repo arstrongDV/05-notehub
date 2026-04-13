@@ -7,13 +7,19 @@ import Modal from '../Modal/Modal'
 import SearchBox from '../SearchBox/SearchBox'
 import Pagination from '../Pagination/Pagination'
 import NoteForm from '../NoteForm/NoteForm'
-
+import { useDebouncedCallback } from 'use-debounce'
 
 function App() {
-
   const [page, setPage] = useState(1);
   const [showModal, setShowModal] = useState<boolean>(false);
+
+  const [inputValue, setInputValue] = useState(''); 
   const [searchQuery, setSearchQuery] = useState('');
+
+  const debouncedSearch = useDebouncedCallback((value: string) => {
+    setSearchQuery(value);
+    setPage(1); // 🔥 reset сторінки
+  }, 300);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['notes', page, searchQuery],
@@ -30,10 +36,13 @@ function App() {
   return (
   <div className={css.app}>
     <header className={css.toolbar}>
-      <SearchBox searchQuery={searchQuery} onChange={(newQuery: string) => {
-        setSearchQuery(newQuery);
-        setPage(1);
-      }} />
+    <SearchBox
+      searchQuery={inputValue}
+      onChange={(value: string) => {
+        setInputValue(value);
+        debouncedSearch(value);
+      }}
+    />
 
       {data && data?.totalPages > 1 && (
         <Pagination totalPages={data?.totalPages} currentPage={page} onPageChange={setPage} />
