@@ -1,5 +1,5 @@
 import axios from "axios";
-import type { NotesProps } from "../types/note";
+import type { Note } from "../types/note";
 
 const api = axios.create({
     baseURL: 'https://notehub-public.goit.study/api/',
@@ -10,7 +10,7 @@ const api = axios.create({
 })
 
 export interface fetchNotesResponse {
-    notes: NotesProps[];
+    notes: Note[];
     totalPages: number;
 }
 interface FetchNotesProps {
@@ -18,7 +18,7 @@ interface FetchNotesProps {
     search: string
 }
 export const fetchNotes = async (params: FetchNotesProps): Promise<fetchNotesResponse> => {
-    const res = await api.get('/notes', {params: params});
+    const res = await api.get<fetchNotesResponse>('/notes', {params: params});
     return res.data;
 };
 
@@ -27,13 +27,13 @@ interface NotesData {
     content: string;
     tag: string;
 }
-export const createNote = async (data: NotesData): Promise<fetchNotesResponse> => {
-    const res = await api.post('/notes', data);
+export const createNote = async (data: NotesData): Promise<Note> => {
+    const res = await api.post<Note>('/notes', data);
     return res.data;
 };
 
 
-export const deleteNote = async (id: string): Promise<fetchNotesResponse> => {
-    const res = await api.delete(`/notes/${id}`);
+export const deleteNote = async (id: string): Promise<Note> => {
+    const res = await api.delete<Note>(`/notes/${id}`);
     return res.data;
 };

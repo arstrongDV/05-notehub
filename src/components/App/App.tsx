@@ -1,16 +1,15 @@
 import { useState } from 'react'
 import css from './App.module.css'
 import NoteList from '../NoteList/NoteList'
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { createNote, deleteNote, fetchNotes } from '../../services/noteService'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { fetchNotes } from '../../services/noteService'
 import Modal from '../Modal/Modal'
-import type { ToDoFormValues } from '../NoteForm/NoteForm'
 import SearchBox from '../SearchBox/SearchBox'
 import Pagination from '../Pagination/Pagination'
+import NoteForm from '../NoteForm/NoteForm'
 
 
 function App() {
-  const queryClient = useQueryClient();
 
   const [page, setPage] = useState(1);
   const [showModal, setShowModal] = useState<boolean>(false);
@@ -22,23 +21,8 @@ function App() {
           page: page,
           search: searchQuery
     }),
-    // enabled: searchQuery !== "",
     placeholderData: keepPreviousData
   });
-
-  const deleteMutation = useMutation({
-    mutationFn: (id: string) => deleteNote(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({queryKey: ['notes']})
-    }
-  })
-
-  const postToDoMutation = useMutation({
-    mutationFn: (values: ToDoFormValues) => createNote(values),
-    onSuccess: () => {
-      queryClient.invalidateQueries({queryKey: ['notes']})
-    }
-  })
 
   if (isLoading) return <p>Loading...</p>;
   if (isError) return <p>Error</p>;
@@ -46,31 +30,25 @@ function App() {
   return (
   <div className={css.app}>
     <header className={css.toolbar}>
-      <SearchBox searchQuery={searchQuery} onChange={(newQuery: string) => setSearchQuery(newQuery)} />
+      <SearchBox searchQuery={searchQuery} onChange={(newQuery: string) => {
+        setSearchQuery(newQuery);
+        setPage(1);
+      }} />
 
       {data && data?.totalPages > 1 && (
-        // <ReactPaginate 
-        //   pageCount={data?.totalPages}
-        //   pageRangeDisplayed={5}
-        //   marginPagesDisplayed={1}
-        //   onPageChange={({ selected }) => setPage(selected + 1)}
-        //   forcePage={page - 1}
-        //   containerClassName={css.pagination}
-        //   activeClassName={css.active}
-        //   nextLabel="→"
-        //   previousLabel="←"
-        // />
-        <Pagination data={data} page={page} setPage={setPage} />
+        <Pagination totalPages={data?.totalPages} currentPage={page} onPageChange={setPage} />
       )}
       <button className={css.button} onClick={() => setShowModal(true)}>Create note +</button>
     </header>
 
     {data?.notes.length !== 0 && (
-      <NoteList notes={data?.notes || []}  onDelete={(id: string) => deleteMutation.mutate(id)} />
+      <NoteList notes={data?.notes || []} />
     )}
 
     {showModal && (
-      <Modal onClose={() => setShowModal(false)} onPost={(values: ToDoFormValues) => postToDoMutation.mutate(values)} />
+      <Modal onClose={() => setShowModal(false)}>
+        <NoteForm onClose={() => setShowModal(false)} />
+      </Modal>
     )}
   </div>
 

@@ -1,10 +1,11 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import css from './NoteForm.module.css'
 import { ErrorMessage, Field, Form, Formik, type FormikHelpers } from 'formik'
 import * as Yup from "yup";
+import { createNote } from '../../services/noteService';
 
-interface ModalProps {
+interface NoteFormProps {
   onClose: () => void;
-    onPost: (valuse: ToDoFormValues) => void;
 }
 
 export interface ToDoFormValues {
@@ -20,26 +21,34 @@ const initialValues: ToDoFormValues = {
 };
 
 
-const NoteForm = ({ onClose, onPost }: ModalProps) => {
+const NoteForm = ({ onClose }: NoteFormProps) => {
+    const queryClient = useQueryClient();
 
-const FormSchema = Yup.object().shape({
-  title: Yup.string()
-    .min(2, "Title must be at least 2 characters")
-    .max(50, "Title is too long")
-    .required("Title is required"),
-  content: Yup.string()
-    .min(2, "Content must be at least 2 characters")
-    .max(500, "Content is too long")
-    .required("Content is required"),
-    tag: Yup.string().required("Tag is required").oneOf(['Todo', 'Work', 'Personal', 'Meeting', 'Shopping'], 'Invalid tag')
-});
+    const postToDoMutation = useMutation({
+    mutationFn: (values: ToDoFormValues) => createNote(values),
+    onSuccess: () => {
+      queryClient.invalidateQueries({queryKey: ['notes']})
+    }
+  })
+
+
+    const FormSchema = Yup.object().shape({
+        title: Yup.string()
+            .min(3, "Title must be at least 2 characters")
+            .max(50, "Title is too long")
+            .required("Title is required"),
+        content: Yup.string()
+            .min(3, "Content must be at least 2 characters")
+            .max(500, "Content is too long"),
+        tag: Yup.string().required("Tag is required").oneOf(['Todo', 'Work', 'Personal', 'Meeting', 'Shopping'], 'Invalid tag')
+    });
 
   const handleSubmit = (
     values: ToDoFormValues,
     actions: FormikHelpers<ToDoFormValues>
   ) => {
     console.log("Order data:", values);
-    onPost(values);
+    postToDoMutation.mutate(values);
     actions.resetForm();
     onClose();
   };
@@ -55,7 +64,7 @@ const FormSchema = Yup.object().shape({
                 <label htmlFor="title">Title</label>
                 <Field id="title" type="text" name="title" className={css.input} />
                 {/* <span name="title" className={css.error} /> */}
-                <ErrorMessage name="title" className={css.error} />
+                <ErrorMessage component="span" name="title" className={css.error} />
             </div>
 
             
@@ -69,7 +78,7 @@ const FormSchema = Yup.object().shape({
                     rows={8}
                     className={css.textarea}
                 />
-                <ErrorMessage name="content" className={css.error} />
+                <ErrorMessage component="span" name="content" className={css.error} />
             </div>
 
             <div className={css.formGroup}>
@@ -81,7 +90,7 @@ const FormSchema = Yup.object().shape({
                     <option value="Meeting">Meeting</option>
                     <option value="Shopping">Shopping</option>
                 </Field>
-                <ErrorMessage name="tag" className={css.error} />
+                <ErrorMessage component="span" name="tag" className={css.error} />
             </div>
 
             <div className={css.actions}>
